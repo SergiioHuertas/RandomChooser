@@ -1,19 +1,18 @@
 "use client"
 
 import { useState, useRef, useEffect } from 'react'
-import { PieChart, Pie, Cell, ResponsiveContainer, Label } from 'recharts'
+import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts'
 import { Button } from "./components/ui/button" 
 import { Input } from "./components/ui/input"
 import { Label as UILabel } from "./components/ui/label"
 import { X } from "lucide-react"
+import { COLORS } from './utils/const.ts';
 
 interface Option {
   id: number;
   name: string;
   color: string;
 }
-
-const COLORS = ['#00FFFF', '#FF00FF', '#FFFF00', '#00FF00', '#FF0000', '#0000FF', '#FF8000', '#8000FF', '#0080FF']
 
 export default function Chart() {
   const [options, setOptions] = useState<Option[]>([])
@@ -39,6 +38,12 @@ export default function Chart() {
     if (selectedOption?.id === id) {
       setSelectedOption(null)
     }
+  }
+
+  const updateOptionColor = (id: number, newColor: string) => {
+    setOptions(options.map(option => 
+      option.id === id ? { ...option, color: newColor } : option
+    ))
   }
 
   const selectRandomOption = () => {
@@ -154,15 +159,23 @@ export default function Chart() {
           {options.map(option => (
             <li key={option.id} className="flex justify-between items-center bg-gray-800 p-2 rounded">
               <span style={{color: option.color}}>{option.name}</span>
-              <Button 
-                variant="ghost" 
-                size="icon"
-                onClick={() => removeOption(option.id)}
-                aria-label={`Eliminar ${option.name}`}
-                className="text-cyan-300 hover:text-cyan-100 hover:bg-gray-700"
-              >
-                <X className="h-4 w-4" />
-              </Button>
+              <div className="flex items-center space-x-2">
+                <Input
+                    type="color"
+                    value={option.color}
+                    onChange={(e) => updateOptionColor(option.id, e.target.value)}
+                    className="w-14 h-10 p-0 bg-transparent border-none"
+                  />
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  onClick={() => removeOption(option.id)}
+                  aria-label={`Eliminar ${option.name}`}
+                  className="text-cyan-300 hover:text-cyan-100 hover:bg-gray-700"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
             </li>
           ))}
         </ul>
