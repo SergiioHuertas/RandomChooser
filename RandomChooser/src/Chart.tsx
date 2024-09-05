@@ -117,18 +117,44 @@ export default function Chart() {
     const radius = innerRadius + (outerRadius - innerRadius) * 0.5
     const x = cx + radius * Math.cos(-midAngle * RADIAN)
     const y = cy + radius * Math.sin(-midAngle * RADIAN)
+    const sin = Math.sin(-midAngle * RADIAN)
+    const cos = Math.cos(-midAngle * RADIAN)
+    const textAnchor = (cos >= 0 ? 'start' : 'end')
+
+    // Split the name into words
+    const words = name.split(' ')
+    const lines = []
+    let currentLine = ''
+
+    // Create lines that fit within the sector
+    words.forEach((word: string) => {
+      if ((currentLine + word).length <= 10) {
+        currentLine += (currentLine ? ' ' : '') + word
+      } else {
+        lines.push(currentLine)
+        currentLine = word
+      }
+    })
+    if (currentLine) {
+      lines.push(currentLine)
+    }
 
     return (
-      <text 
-        x={x} 
-        y={y} 
-        fill="white"
-        textAnchor={x > cx ? 'start' : 'end'} 
-        dominantBaseline="central"
-        style={{ pointerEvents: 'none' }}
-      >
-        {`${name} (${(percent * 100).toFixed(0)}%)`}
-      </text>
+      <g>
+        {lines.map((line: string, index: number) => (
+          <text
+            key={index}
+            x={x}
+            y={y + (index - (lines.length - 1) / 2) * 12}
+            fill="white"
+            textAnchor={textAnchor}
+            dominantBaseline="central"
+            style={{ fontSize: '15px', fontWeight: 'bold', pointerEvents: 'none' }}
+          >
+            {line}
+          </text>
+        ))}
+      </g>
     )
   }
 
@@ -193,7 +219,7 @@ export default function Chart() {
                   outerRadius={100}
                   dataKey="value"
                   labelLine={false}
-                  label={CustomLabel}
+                  label={selectedOption ? null : CustomLabel}
                   style={{ transform: `rotate(${rotationAngle}deg)`, transformOrigin: 'center' }}
                 >
                   {data.map((entry, index) => (
